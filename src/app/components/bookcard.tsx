@@ -2,21 +2,18 @@
 
 import {
     Box,
-    Center,
     useColorModeValue,
     Heading,
     Text,
     Stack,
     Image,
 } from '@chakra-ui/react'
-
-import { motion } from 'framer-motion'
+import React from 'react';
 
 const IMAGE =
     'https://images.unsplash.com/photo-1518051870910-a46e30d9db16?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&auto=format&fit=crop&w=1350&q=80'
 
-export default function BookCard({ id, imageURL, title, authors }: { id: string, imageURL: string, title: string, authors: [string] }) {
-    const MotionBox = motion(Box);
+export default function BookCard({ id, imageURL, title, authors }: { id: string, imageURL: string, title: string, authors: string[] }) {
 
     return (
         <Box
@@ -33,7 +30,7 @@ export default function BookCard({ id, imageURL, title, authors }: { id: string,
             zIndex={1}
             overflow="hidden"  // Set overflow to "hidden"
             transition="transform 0.3s ease"
-            _hover={{ transform: 'scale(1.05)', zIndex: 2 }}
+            _hover={{ transform: 'scale(1.02)', zIndex: 2, bg: useColorModeValue('white', 'white') }}
         >
             <Box
                 rounded={'lg'}
@@ -74,19 +71,21 @@ export default function BookCard({ id, imageURL, title, authors }: { id: string,
                 >
                     No Author
                 </Text>}
-                {authors.map((author, index) => (
-                    <Text
-                        color={'gray.500'}
-                        fontSize={'sm'}
-                        textTransform={'uppercase'}
-                        textAlign="center"
-                        fontWeight="bold"
-                        overflow="hidden"
-                        textOverflow="ellipsis"
-                        noOfLines={2}  // Set the maximum number of lines
-                    >
-                        {author}
-                    </Text>
+                {authors.map((author, index, key) => (
+                    <React.Fragment key={index}>
+                        <Text
+                            color={'gray.500'}
+                            fontSize={'sm'}
+                            textTransform={'uppercase'}
+                            textAlign="center"
+                            fontWeight="bold"
+                            overflow="hidden"
+                            textOverflow="ellipsis"
+                            noOfLines={2}  // Set the maximum number of lines
+                        >
+                            {author}
+                        </Text>
+                    </React.Fragment>
                 ))}
 
                 <Heading

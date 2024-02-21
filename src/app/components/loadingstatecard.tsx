@@ -9,11 +9,9 @@ const shimmer = keyframes`
 const LoadingStateCard = () => {
     return (
         <Box
-            w="100%"
             maxW="280"
             h="400"
             bgGradient="linear(to-r, #eee 0%, #fff 50%, #eee 100%)"
-            bgSize="600px 100%"
             bgPos="0 0"
             rounded={'lg'}
             boxShadow="0px 4px 8px rgba(0, 0, 0, 0.1)" // Drop shadow
