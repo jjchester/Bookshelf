@@ -2,6 +2,7 @@ import { SimpleGrid, Center } from '@chakra-ui/react';
 import React from 'react';
 import BookCard from './bookcard';
 import BookVolume from '../models/BookVolume';
+import { DEFAULT_IMAGE_URL } from '../utils/constants';
 
 interface BookGridProps {
     books: BookVolume[];
@@ -15,7 +16,7 @@ const BookGrid: React.FC<BookGridProps> = ({ books }) => {
                     <BookCard
                         key={book.volumeInfo.industryIdentifiers?.[0].identifier ?? book.id}
                         id={book.id}
-                        imageURL={book?.volumeInfo?.imageLinks?.thumbnail || ''}
+                        imageURL={book?.volumeInfo?.imageLinks?.thumbnail || DEFAULT_IMAGE_URL}
                         title={book?.volumeInfo?.title || ''}
                         authors={book?.volumeInfo?.authors || []}
                     />

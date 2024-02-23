@@ -1,0 +1,1 @@
+export const DEFAULT_IMAGE_URL = "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhkmJET1wnbyeMwrm0R4wLMjE7de0_euSp_lnyRNFP1ZMUTnDD69nKX3YF2x5X5TFM8b8yIZ8V-xruXY3eSbrqH48tfsZ9h4CFTXx97DI9INIHlYt_VqWSA7clAWr6yWISwDMggNxCUQOk/s200/play-books-no-cover.jpg";

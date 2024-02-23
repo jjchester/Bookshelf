@@ -34,10 +34,6 @@ const confetti = {
     },
 }
 
-function onClick() {
-    console.log('Button clicked!')
-}
-
 export default function Contact() {
     const { hasCopied, onCopy } = useClipboard('example@example.com')
 
@@ -175,7 +171,7 @@ export default function Contact() {
                                             bg: 'blue.500',
                                         }}
                                         width="full"
-                                        onClick={onClick}>
+                                        onClick={() => { }}>
                                         Send Message
                                     </Button>
                                 </VStack>

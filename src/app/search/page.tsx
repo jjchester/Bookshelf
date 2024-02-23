@@ -1,46 +1,32 @@
 'use client'
 
 import React, { useState, ChangeEvent, KeyboardEvent } from 'react';
-import useSWR from 'swr';
 import { Button, Center, Grid, GridItem, SimpleGrid, Text } from '@chakra-ui/react';
 import BookGrid from '../components/bookgrid';
 import SearchBar from '../components/SearchBar';
-import LoadingStateCard from '../components/loadingstatecard';
-import fetcher from '../utils/fetcher';
 import LoadingStateGrid from '../components/loadingStateGrid';
 import BookVolume from '../models/BookVolume';
+import { update } from '@/redux/features/searchQuerySlice';
+import { updateSearchResult, clearSearchResult } from '@/redux/features/searchResultSlice';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/redux/store';
+import { useAppSelector } from '@/redux/store';
+
+const API_KEY = process.env.NEXT_PUBLIC_BOOKS_API_KEY;
 
 const BookSearch: React.FC = () => {
     const PAGE_SIZE = 20;
     const [currentPage, setCurrentPage] = useState(1);
-    const [allItems, setAllItems] = useState<BookVolume[]>([]);
-    const [totalItems, setTotalItems] = useState<number>(0);
-    const [titleQuery, settitleQuery] = useState<string>('');
-    const [authorQuery, setAuthorQuery] = useState<string>('');
-    const [isbnQuery, setIsbnQuery] = useState<string>('');
+    const [allItems, setAllItems] = useState<BookVolume[]>(useAppSelector((state) => state.searchResultReducer.value.results) || []);
+    const [totalItems, setTotalItems] = useState<number>(useAppSelector((state) => state.searchResultReducer.value.totalItems) || 0);
+    const [titleQuery, settitleQuery] = useState<string>(useAppSelector((state) => state.searchQueryReducer.value.titleQuery));
+    const [authorQuery, setAuthorQuery] = useState<string>(useAppSelector((state) => state.searchQueryReducer.value.authorQuery));
+    const [isbnQuery, setIsbnQuery] = useState<string>(useAppSelector((state) => state.searchQueryReducer.value.isbnQuery));
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [errorText, setErrorText] = useState<string>('');
     const startIndex = (currentPage - 1) * PAGE_SIZE;
+    const dispatch = useDispatch<AppDispatch>();
 
-
-    // const { data, error, isValidating, isLoading } = useSWR<BookSearchResponse>(
-    //     titleQuery.trim() !== ''
-    //         ? `https://www.googleapis.com/books/v1/volumes?q=${titleQuery}&startIndex=${startIndex}&maxResults=${PAGE_SIZE}`
-    //         : null,
-    //     fetcher,
-    //     {
-    //         onSuccess: (data) => {
-    //             setTotalItems(data.totalItems);
-    //             setAllItems((prevItems) => [...prevItems, ...(data.items || [])]);
-    //         },
-    //         onError: (error) => {
-    //             console.error('Failed to fetch data', error);
-    //         },
-    //         onDiscarded: () => {
-    //             console.error('titleQuery was discarded');
-    //         }
-    //     }
-    // );
 
     const fetchBooks = () => {
         let queryParams = [];
@@ -56,9 +42,7 @@ const BookSearch: React.FC = () => {
 
         const queryString = queryParams.join('+');
 
-        let url = `https://www.googleapis.com/books/v1/volumes?q=${queryString}&startIndex=${startIndex}&maxResults=${PAGE_SIZE}`;
-
-        console.log(url);
+        let url = `https://www.googleapis.com/books/v1/volumes?q=${queryString}&startIndex=${startIndex}&maxResults=${PAGE_SIZE}&key=${API_KEY}`;
 
         setIsLoading(true);
         fetch(url)
@@ -73,6 +57,9 @@ const BookSearch: React.FC = () => {
                     setAllItems((prevItems) => [...prevItems, ...(data.items || [])]);
                 }
                 setIsLoading((_) => (false));
+                // allItems may not be updated yet, and we don't want to push old search results to the store, so check page to see if it's a fresh search
+                let result = currentPage == 1 ? [...(data.items || [])] : [...allItems, ...(data.items || [])];
+                dispatch(updateSearchResult({ results: result, totalItems: data.totalItems }));
             })
             .catch(error => {
                 console.error('Failed to fetch data', error);
@@ -84,7 +71,8 @@ const BookSearch: React.FC = () => {
     const loadMore = () => {
         const nextPage = currentPage + 1;
         if (allItems.length < totalItems) {
-            setCurrentPage(nextPage);
+            setCurrentPage((_) => (nextPage));
+            fetchBooks();
         }
     };
 
@@ -101,6 +89,8 @@ const BookSearch: React.FC = () => {
     }
 
     const handleSearch = () => {
+        dispatch(clearSearchResult());
+        dispatch(update({ titleQuery, authorQuery, isbnQuery }));
         setCurrentPage(1);
         setAllItems([]);
         fetchBooks();
@@ -108,7 +98,6 @@ const BookSearch: React.FC = () => {
 
     const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
-            console.log("Handle search")
             handleSearch();
         }
     };
@@ -166,7 +155,7 @@ const BookSearch: React.FC = () => {
                 )
             }
             {
-                allItems.length < totalItems && allItems.length > 0 && titleQuery.trim() !== '' && (
+                allItems.length < totalItems && allItems.length > 0 && (titleQuery.trim() !== '' || authorQuery.trim() !== '' || isbnQuery.trim() !== '') && (
                     <Center>
                         <Button onClick={loadMore} mt={4} colorScheme="teal">
                             Load more
